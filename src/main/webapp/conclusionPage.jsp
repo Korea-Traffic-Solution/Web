@@ -102,7 +102,7 @@ if (session.getAttribute("managerUid") == null) {
 				<div class="project-boxes jsGridView" id="conclusion-detail-list"></div>
 				
 			</div>
-			<%@include file="notice.jsp"%>			
+			<%@include file="chatBot.jsp"%>			
 		</div>
 	</div>
 	<script src="resource/js/main.js"></script>

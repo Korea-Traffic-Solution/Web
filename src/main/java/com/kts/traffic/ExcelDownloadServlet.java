@@ -49,7 +49,7 @@ public class ExcelDownloadServlet extends HttpServlet {
 				}
 
 				FirebaseOptions options = new FirebaseOptions.Builder()
-						.setCredentials(GoogleCredentials.fromStream(serviceAccount)).setProjectId("capstone-ce8e9")
+						.setCredentials(GoogleCredentials.fromStream(serviceAccount)).setProjectId("koreatrafficsolution")
 						.build();
 				FirebaseApp.initializeApp(options);
 				serviceAccount.close(); // 리소스 해제

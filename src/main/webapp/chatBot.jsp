@@ -24,7 +24,7 @@
             margin-bottom: 24px;
         }
         .chat-area {
-            height: 350px;           /* 고정 높이 */
+            height: 700px;           /* 고정 높이 */
             overflow-y: auto;        /* 넘치면 스크롤 */
             margin-bottom: 24px;
             background: #f5f6fa;
@@ -55,7 +55,7 @@
             clear: both;
             border-bottom-left-radius: 4px;
         }
-        form {
+        .chat-form {
             display: flex;
             gap: 8px;
             margin-top: 16px;
@@ -89,16 +89,29 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>전동킥보드 법률 챗봇</h2>
-        <div class="chat-area clearfix" id="chat-area">
+	<div class="messages-section">
+		<button class="messages-close">
+			<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+				viewBox="0 0 24 24" fill="none" stroke="currentColor"
+				stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+				class="feather feather-x-circle">
+        		<circle cx="12" cy="12" r="10" />
+        		<line x1="15" y1="9" x2="9" y2="15" />
+        		<line x1="9" y1="9" x2="15" y2="15" />
+        	</svg>
+		</button>
+		<div class="projects-section-header">
+			<p>공지사항</p>
+		</div>
+		<div class="chat-area clearfix" id="chat-area">
             <!-- 말풍선 대화가 여기에 추가됨 -->
         </div>
-        <form id="chat-form" autocomplete="off" onsubmit="return sendMessage();">
+        <form id="chat-form" class="chat-form" autocomplete="off" onsubmit="return sendMessage();">
             <input type="text" id="violation" placeholder="위반사항을 입력하세요 (예: 2인탑승)" required autofocus>
             <button type="submit">질문</button>
         </form>
-    </div>
+	</div>
+    
     <script>
         function addBubble(text, who) {
             const area = document.getElementById('chat-area');
@@ -116,7 +129,7 @@
 
             addBubble(question, 'user');
             input.value = '';
-            fetch('http://${window.location.hostname}:8000/ask', {
+            fetch(`http://172.30.1.91:8000/ask`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({violation: question})

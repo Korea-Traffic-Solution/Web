@@ -85,6 +85,8 @@ async function updateMonthlyStats() {
 
 		console.log('관할 지역:', jurisdiction); // 디버깅용
 
+		const excludeValues = ["사람 감지 실패", "킥보드 감지 실패", "보행자로 판단됨"];
+
 		// 1. 진행 중 (미확인): result가 null이면서 이번 달
 		const qAll = query(
 			collection(db, "Conclusion"),
@@ -101,6 +103,12 @@ async function updateMonthlyStats() {
 		snapAll.forEach(doc => {
 			const data = doc.data();
 			const region = data.region || '';
+			const aiConclusion = Array.isArray(data.aiConclusion) ? data.aiConclusion : [data.aiConclusion];
+			
+			// 제외 값이 포함되어 있으면 건너뜀
+			if (excludeValues.some(v => aiConclusion.includes(v))) {
+				return;
+			}
 
 			// 관할 지역에 해당하는지 확인
 			if (isRegionInJurisdiction(region, jurisdiction)) {
