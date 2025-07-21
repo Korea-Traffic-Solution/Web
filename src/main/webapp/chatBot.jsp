@@ -67,20 +67,27 @@
             border-radius: 8px;
             font-size: 16px;
         }
-        button {
-            background: #ffe400;
-            border: none;
-            border-radius: 8px;
-            padding: 0 20px;
-            font-size: 16px;
-            font-weight: bold;
-            color: #222;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        button:hover {
-            background: #ffea70;
-        }
+        .chat-close-button {
+			/* 닫기 버튼만의 스타일 지정 */
+		  	background: transparent;
+		  	border: none;
+		  	padding: 4px;
+		  /* 필요에 따라 추가 */
+		}
+		.chat-submit-button {
+		  	background: #ffe400;
+		  	border: none;
+		  	border-radius: 8px;
+		  	padding: 0 20px;
+		  	font-size: 16px;
+		 	font-weight: bold;
+		 	color: #222;
+		 	cursor: pointer;
+		 	transition: background 0.2s;
+		}
+		.chat-submit-button:hover {
+		  	background: #ffea70;
+		}
         .clearfix::after {
             content: "";
             display: table;
@@ -101,48 +108,86 @@
         	</svg>
 		</button>
 		<div class="projects-section-header">
-			<p>공지사항</p>
+			<p>전동킥보드 법률 챗봇</p>
 		</div>
 		<div class="chat-area clearfix" id="chat-area">
             <!-- 말풍선 대화가 여기에 추가됨 -->
         </div>
         <form id="chat-form" class="chat-form" autocomplete="off" onsubmit="return sendMessage();">
             <input type="text" id="violation" placeholder="위반사항을 입력하세요 (예: 2인탑승)" required autofocus>
-            <button type="submit">질문</button>
+            <button class="chat-submit-button" type="submit">질문</button>
         </form>
 	</div>
     
     <script>
-        function addBubble(text, who) {
-            const area = document.getElementById('chat-area');
-            const div = document.createElement('div');
-            div.className = 'bubble ' + who;
-            div.textContent = text;
-            area.appendChild(div);
-            area.scrollTop = area.scrollHeight; // 항상 아래로 스크롤
-        }
+		function getUrlParameter(name) {
+	        name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+	        var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+	        var results = regex.exec(window.location.search);
+	        return results === null ? null : decodeURIComponent(results[1].replace(/\+/g, ' '));
+	    }
+       
+        // 전역에서 쓰일 UID 선언
+        const currentUID = getUrlParameter('id');
+        console.log('currentUID', currentUID);
+       
+        window.addEventListener('DOMContentLoaded', () => {
+	        if (currentUID) {
+		        fetch(`http://172.30.1.79:8000/load-user-data`, {
+			        method: 'POST',
+			        headers: { 'Content-Type': 'application/json' },
+			        body: JSON.stringify({ uid: currentUID })
+		        })
+		        .then(() => {
+		        	console.log('✅ 사용자 데이터 준비 완료');
+		        })
+		        .catch(() => {
+		        	addBubble('⚠️ 사용자 데이터를 불러오지 못했습니다.', 'bot');
+		        });
+	        }
+        });
 
-        function sendMessage() {
-            const input = document.getElementById('violation');
-            const question = input.value.trim();
-            if (!question) return false;
 
-            addBubble(question, 'user');
-            input.value = '';
-            fetch(`http://172.30.1.91:8000/ask`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({violation: question})
-            })
-            .then(response => response.json())
-            .then(data => {
-                addBubble(data.result, 'bot');
-            })
-            .catch(err => {
-                addBubble('⚠️ 서버 오류가 발생했습니다.', 'bot');
-            });
-            return false; // 폼 submit 막기
-        }
+	   	function addBubble(text, who) {
+	   		const area = document.getElementById('chat-area');
+	   		const div = document.createElement('div');
+	   		div.className = 'bubble ' + who;
+	   		div.textContent = text;
+	   		area.appendChild(div);
+	   		area.scrollTop = area.scrollHeight; // 항상 아래로 스크롤
+	   	}
+	
+	   	function sendMessage() {
+	   		const input = document.getElementById('violation');
+	   		const question = input.value.trim();
+	   		if (!question) return false;
+	
+		   	addBubble(question, 'user');
+		   	input.value = '';
+	
+	   		const endpoint = currentUID
+	        	? `http://172.30.1.79:8000/ask_with_uid`
+	        	: `http://172.30.1.79:8000/ask`;
+	
+	        const payload = currentUID
+	        	? JSON.stringify({ uid: currentUID, question })
+	        	: JSON.stringify({ violation: question });
+	       
+	        fetch(endpoint, {
+	        	method: 'POST',
+	        	headers: { 'Content-Type': 'application/json' },
+	        	body: payload
+	        })
+	        .then(response => response.json())
+	        .then(data => {
+	        	addBubble(data.result, 'bot');
+	        })
+	        .catch(err => {
+	        	addBubble('⚠️ 서버 오류가 발생했습니다.', 'bot');
+	        });
+	       
+	        return false; // 폼 submit 막기
+	   }
     </script>
 </body>
 </html>
